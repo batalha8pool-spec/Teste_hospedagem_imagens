@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Disputa de Seguidores</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #070b10;
+  --panel: rgba(15,20,25,0.9);
+  --accent: #ffd166;
+  --muted: #9aa4af;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--bg-dark);
+  color: #fff;
+}
+
+.app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+/* Header */
+.app-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.logo {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 10px;
+  background: url('logo.png') center/cover no-repeat;
+  border-radius: 50%;
+}
+.title { font-size: 22px; font-weight: 700; color: var(--accent); }
+.subtitle { font-size: 13px; color: var(--muted); }
+.countdown { font-size: 16px; font-weight: 600; color: var(--accent); margin: 6px 0; }
+.message { font-size: 14px; color: var(--muted); margin-bottom: 15px; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  padding: 6px;
+  border-radius: 10px;
+}
+.tab {
+  flex: 1; text-align: center; padding: 10px; border-radius: 8px;
+  cursor: pointer; font-weight: 600; color: var(--muted); border: 1px solid transparent;
+}
+.tab.active { background: rgba(255,255,255,0.08); color: var(--accent); border-color: rgba(255,255,255,0.1); }
+
+/* Panels */
+.panel {
+  background: var(--panel); border-radius: 12px; margin-top: 10px;
+  padding: 12px; min-height: 280px;
+}
+
+/* Podium */
+.podium {
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: 8px; margin-bottom: 20px;
+}
+.place {
+  width: 90px; display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+}
+.avatar {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.2); object-fit: cover;
+}
+.username {
+    font-size: 12px; margin-top: 4px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; width: 100%;
+}
+.points { font-size: 11px; color: var(--muted); }
+.block {
+  width: 100%; border-radius: 6px; color: #111; font-weight: 700;
+  text-align: center; margin-top: 5px; padding: 6px 0;
+}
+.one .block { height: 70px; background: linear-gradient(180deg, #ffd700, #a87d00); }
+.two .block { height: 55px; background: linear-gradient(180deg, #d9d9d9, #8c8c8c); }
+.three .block { height: 45px; background: linear-gradient(180deg, #cd7f32, #8b4513); }
+
+/* Ranking */
+.rank-list { list-style: none; padding: 0; margin: 0; }
+.rank-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; background: rgba(255,255,255,0.05);
+  padding: 8px; border-radius: 10px; margin-bottom: 6px; transition: all 0.3s ease;
+}
+.rank-item.highlight { background: rgba(255,215,102,0.2); box-shadow: 0 0 10px rgba(255,215,102,0.4); }
+.rank-pos {
+  width: 34px; height: 34px; background: rgba(255,255,255,0.1); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: var(--accent);
+}
+.r-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
+/* Controles (Busca e Seletor de Data) */
+.controls-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.input, .date-selector {
+  flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background-color: transparent;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+}
+.date-selector {
+    flex: 2;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239aa4af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: .65em auto;
+    padding-right: 30px;
+}
+.btn {
+  padding: 8px 12px; border: none; border-radius: 8px; background: var(--accent);
+  color: #111; font-weight: 700; cursor: pointer;
+}
+
+/* Estilos para a Aba de Regras */
+.rules-container { text-align: center; }
+.rules-container h2 {
+  color: var(--accent);
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+.rule-box {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.rule-box ul {
+  text-align: center;
+  padding-left: 0;
+  margin-top: 10px;
+}
+.rule-box li {
+  margin-bottom: 8px;
+  list-style: none;
+  display: block;
+  text-align: center;
+  color: var(--muted);
+}
+.rule-box h3 {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: var(--accent);
+  text-align: center;
+}
+
+#confettiCanvas { position: fixed; pointer-events: none; left: 0; top: 0; width: 100%; height: 100%; z-index: 9999; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div class="logo"></div>
+    <div class="title">Disputa de Seguidores</div>
+    <div class="subtitle">Rodadas diárias • Coroa ao campeão</div>
+    <div class="countdown" id="countdown">Carregando...</div>
+    <div class="message">Siga para fazer parte da disputa!</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="tab-daily">Ranking Diário</div>
+    <div class="tab" data-tab="tab-general">Ranking Geral</div>
+    <div class="tab" data-tab="tab-rules">Regras</div>
+  </div>
+
+  <div class="panel" id="tab-daily">
+    <div class="controls-row">
+        <select id="dateSelector" class="date-selector"><option>Carregando datas...</option></select>
+    </div>
+    <div class="podium" id="podiumDaily"></div>
+    
+    <div class="controls-row">
+        <input id="searchDaily" class="input" placeholder="Buscar username na rodada...">
+        <button class="btn" id="btnFindDaily">🔎</button>
+    </div>
+    <ul class="rank-list" id="rankListDaily"></ul>
+  </div>
+
+  <div class="panel" id="tab-general" style="display:none;">
+    <div class="controls-row">
+      <input id="searchGeneral" class="input" placeholder="Buscar username...">
+      <button class="btn" id="btnFindGeneral">🔎</button>
+    </div>
+    <ul class="rank-list" id="rankListGeneral"></ul>
+  </div>
+
+  <div class="panel" id="tab-rules" style="display:none;">
+    <div class="rules-container">
+      <h2>Como Funciona? </h2>
+      <div class="rule-box">⭐ Siga a página para entrar na disputa.</div>
+      <div class="rule-box">⏰ As rodadas acontecem todos os dias às <b>19h</b>.</div>
+      <div class="rule-box">🎵 O campeão do dia escolhe a música que tocará no Story do Pódio.</div>
+      <div class="rule-box">🏆 Os três primeiros ganham posições no pódio diário.</div>
+      <div class="rule-box">🔥 As pontuações acumulam no ranking geral.</div>
+      <div class="rule-box">
+        <h3>Sistema de Pontuação</h3>
+        <ul>
+          <li><strong>1º Lugar:</strong> +100 pts</li>
+          <li><strong>2º Lugar:</strong> +85 pts</li>
+          <li><strong>3º Lugar:</strong> +65 pts</li>
+          <li><strong>Top 4 - 25%:</strong> +45 pts</li>
+          <li><strong>Top 25% - 50%:</strong> +30 pts</li>
+          <li><strong>Top 50% - 75%:</strong> +20 pts</li>
+          <li><strong>Top 75% - 100%:</strong> +10 pts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+
+<script>
+/* ---------- Lógica dos Confetes (separada e intacta) ---------- */
+const confettiCanvas = document.getElementById('confettiCanvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+let confettiParticles = [];
+let frameId = null;
+function resizeConfetti(){ confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeConfetti);
+function createParticle(overrides = {}) { const w = 6 + Math.random() * 12; return { x: (overrides.x ?? Math.random() * confettiCanvas.width), y: (overrides.y ?? (-20 - Math.random() * 200)), vx: (-2 + Math.random() * 4), vy: (2 + Math.random() * 6), rot: Math.random() * 360, vrot: -6 + Math.random() * 12, color: `hsl(${Math.floor(Math.random()*360)}, 80%, 60%)`, w, h: Math.max(4, w * (0.4 + Math.random() * 0.8)), life: 0, ttl: Math.floor(200 + Math.random() * 200) }; }
+function fireConfetti(amount = 80, options = {}) { const centerX = options.x ?? confettiCanvas.width * 0.5; for (let i = 0; i < amount; i++) { confettiParticles.push(createParticle({ x: centerX + (Math.random() - 0.5) * (options.spread ?? confettiCanvas.width * 0.6) })); } if (confettiParticles.length > 0 && frameId === null) { frameId = requestAnimationFrame(renderConfetti); } }
+function renderConfetti() { confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); for (let i = confettiParticles.length - 1; i >= 0; i--) { const p = confettiParticles[i]; p.x += p.vx + Math.sin(p.life * 0.02) * 0.04; p.y += p.vy; p.vy += 0.08; p.rot += p.vrot; p.life++; confettiCtx.save(); confettiCtx.translate(p.x, p.y); confettiCtx.rotate(p.rot * Math.PI / 180); const flip = Math.cos((p.life / p.ttl) * Math.PI * 4); confettiCtx.scale(1, 0.9 + 0.2 * flip); confettiCtx.fillStyle = p.color; confettiCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h); confettiCtx.restore(); if (p.y > confettiCanvas.height + 100 || p.life > p.ttl) { confettiParticles.splice(i, 1); } } if (confettiParticles.length > 0) { frameId = requestAnimationFrame(renderConfetti); } else { frameId = null; } }
+function burstConfetti(bursts = 5, perBurst = 120, intervalMs = 300) { let fired = 0; const iv = setInterval(() => { fireConfetti(perBurst); fired++; if (fired >= bursts) clearInterval(iv); }, intervalMs); }
+resizeConfetti();
+</script>
+
+
+<script>
+/* ---------- Lógica principal da página ---------- */
+
+// !!! SUBSTITUA PELOS SEUS LINKS PUBLICADOS !!!
+const RODADAS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQAsMWP39_k1esp2fkC7f5OUDlxiN2twBeGIjtomTG8wxvV-2ifvX1nZie3rG9nnPNtTahUevwUfmnJ/pub?gid=124793605&single=true&output=csv';
+const RANKING_GERAL_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQAsMWP39_k1esp2fkC7f5OUDlxiN2twBeGIjtomTG8wxvV-2ifvX1nZie3rG9nnPNtTahUevwUfmnJ/pub?gid=775078002&single=true&output=csv';
+
+let allDailyData = {};
+
+function renderRanking(listElement, participants, isGeneralRanking = false) {
+  listElement.innerHTML = "";
+  if (!participants || participants.length === 0) {
+    listElement.innerHTML = "<li style='text-align: center; color: var(--muted);'>Nenhum dado encontrado.</li>";
+    return;
+  }
+  participants.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.className = "rank-item";
+    li.dataset.username = p.username.toLowerCase();
+    let pointsText = '';
+    if (isGeneralRanking) {
+        pointsText = `${p.points_total} pts`;
+    } else {
+        pointsText = `+${p.points_day} pts`;
+    }
+    li.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="rank-pos">${i + 1}</div>
+        <img src="${p.img}" class="r-avatar" alt="Avatar de ${p.username}" onerror="this.src='logo.png';">
+        <div>${p.username}</div>
+      </div>
+      <div style="font-weight: 600; color: var(--accent); font-size: 14px; white-space: nowrap;">
+        ${pointsText}
+      </div>
+    `;
+    listElement.appendChild(li);
+  });
+}
+
+function renderPodium(dailyParticipants) {
+  const podium = document.getElementById("podiumDaily");
+  podium.innerHTML = "";
+  if (!dailyParticipants || dailyParticipants.length === 0) {
+    podium.innerHTML = '<p style="text-align:center;color:var(--muted);">Sem pódio para esta data.</p>';
+    return;
+  }
+  const top3 = dailyParticipants.slice(0, 3);
+  const order = [1, 0, 2];
+  let podiumHTML = '';
+  order.forEach((i) => {
+    const p = top3[i];
+    if (!p) return;
+    const placeClass = i === 0 ? "one" : i === 1 ? "two" : "three";
+    podiumHTML += `
+      <div class="place ${placeClass}">
+        <img src="${p.img}" class="avatar" alt="Avatar de ${p.username}" onerror="this.src='logo.png';">
+        <div class="username">${p.username}</div>
+        <div class="points">${p.points_day} pts</div>
+        <div class="block">${i + 1}º</div>
+      </div>
+    `;
+  });
+  podium.innerHTML = podiumHTML;
+}
+
+async function loadGeneralRanking() {
+  const listElement = document.getElementById("rankListGeneral");
+  try {
+    const response = await fetch(RANKING_GERAL_CSV_URL);
+    if (!response.ok) throw new Error(`Erro de rede: ${response.status}`);
+    const csvText = await response.text();
+    const lines = csvText.trim().split('\n');
+    const participants = lines.slice(1).map(line => {
+      const [username, points_total, ...imageUrlParts] = line.trim().split(',');
+      const imageUrl = imageUrlParts.join(',');
+      if (!username || !points_total || !imageUrl) return null;
+      return {
+          username,
+          points_total: parseInt(points_total, 10),
+          img: 'https://corsproxy.io/?' + encodeURIComponent(imageUrl)
+      };
+    }).filter(p => p !== null);
+    renderRanking(listElement, participants, true);
+  } catch (error) {
+    listElement.innerHTML = `<li style='text-align: center; color: var(--muted);'>Erro ao carregar ranking geral.</li>`;
+    console.error("Erro no Ranking Geral:", error);
+  }
+}
+
+async function loadDailyData() {
+  const dateSelector = document.getElementById("dateSelector");
+  try {
+    const response = await fetch(RODADAS_CSV_URL);
+    if (!response.ok) throw new Error(`Erro de rede: ${response.status}`);
+    const csvText = await response.text();
+    const lines = csvText.trim().split('\n');
+    allDailyData = {};
+    lines.slice(1).forEach(line => {
+      const values = line.trim().split(',');
+      if (values.length < 5) return;
+      const date = values[0];
+      const username = values[1];
+      const imageUrl = values.slice(2, -2).join(',');
+      const ranking = parseInt(values[values.length - 2], 10);
+      const points = parseInt(values[values.length - 1], 10);
+      if (!date || !username || !imageUrl) return;
+      if (!allDailyData[date]) {
+        allDailyData[date] = [];
+      }
+      allDailyData[date].push({
+        username,
+        img: 'https://corsproxy.io/?' + encodeURIComponent(imageUrl),
+        ranking,
+        points_day: points
+      });
+    });
+    const availableDates = Object.keys(allDailyData).sort((a, b) => {
+        const dateA = a.split('/').reverse().join('-');
+        const dateB = b.split('/').reverse().join('-');
+        return new Date(dateB) - new Date(dateA);
+    });
+    dateSelector.innerHTML = '';
+    if (availableDates.length > 0) {
+        availableDates.forEach(date => {
+          const option = document.createElement("option");
+          option.value = date;
+          option.textContent = `Rodada de ${date}`;
+          dateSelector.appendChild(option);
+        });
+        displayDataForDate(availableDates[0]);
+    } else {
+        dateSelector.innerHTML = '<option>Nenhuma rodada encontrada</option>';
+        renderPodium([]);
+        renderRanking(document.getElementById("rankListDaily"), [], false);
+    }
+  } catch (error) {
+    dateSelector.innerHTML = `<option>Erro ao carregar</option>`;
+    console.error("Erro ao carregar dados das Rodadas:", error);
+  }
+}
+
+function displayDataForDate(date) {
+  if (!date || !allDailyData[date]) return;
+  const dailyParticipants = allDailyData[date];
+  dailyParticipants.sort((a, b) => b.points_day - a.points_day);
+  renderPodium(dailyParticipants);
+  renderRanking(document.getElementById("rankListDaily"), dailyParticipants, false);
+}
+
+// --- Event Listeners ---
+document.getElementById('dateSelector').addEventListener('change', (e) => {
+  displayDataForDate(e.target.value);
+});
+
+// INÍCIO DA ALTERAÇÃO: Novo listener para a busca diária
+document.getElementById("btnFindDaily").addEventListener("click", () => {
+  const term = document.getElementById("searchDaily").value.toLowerCase().trim();
+  document.querySelectorAll("#rankListDaily .rank-item").forEach(li => {
+    li.classList.remove("highlight");
+    if (term && li.dataset.username.includes(term)) {
+      li.classList.add("highlight");
+      li.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+});
+// FIM DA ALTERAÇÃO
+
+document.getElementById("btnFindGeneral").addEventListener("click", () => {
+  const term = document.getElementById("searchGeneral").value.toLowerCase().trim();
+  document.querySelectorAll("#rankListGeneral .rank-item").forEach(li => {
+    li.classList.remove("highlight");
+    if (term && li.dataset.username.includes(term)) {
+      li.classList.add("highlight");
+      li.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+});
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.style.display="none");
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.tab).style.display="block";
+
+    if (tab.dataset.tab === 'tab-daily' || tab.dataset.tab === 'tab-general') {
+        burstConfetti(2, 80, 250);
+    }
+  });
+});
+
+// --- Inicialização ---
+function init() {
+    loadGeneralRanking();
+    loadDailyData();
+    setInterval(() => {
+      const now = new Date();
+      const target = new Date();
+      target.setHours(19,0,0,0);
+      if(now > target) target.setDate(target.getDate() + 1);
+      const diff = target - now;
+      const h = Math.floor(diff/3600000);
+      const m = Math.floor((diff%3600000)/60000);
+      const s = Math.floor((diff%60000)/1000);
+      document.getElementById("countdown").textContent = `Próxima rodada em: ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
+
+
+
